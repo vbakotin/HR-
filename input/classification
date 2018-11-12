@@ -1,0 +1,55 @@
+from tknz import clear
+import numpy as np
+from operator import itemgetter
+from sortdict import sortdict
+from may import vocab_comp,cod_comp,vacancies,eksd
+from genious import sample
+from sklearn.cross_validation import train_test_split
+from UoC_alg import comp_post
+from sklearn.metrics import accuracy_score
+from sklearn.naive_bayes import BernoulliNB
+nb_B = BernoulliNB()
+
+#формирование множества объектов (требуемых компетенций с hh.ru)
+comp_posit=[[] for y in range(len(vacancies))]
+for elem in sample.keys():
+   for i in range(len(vacancies)):
+        if elem in vacancies[i]:
+            comp_posit[i].append(sample[elem])
+#формирование множества ответов (определенных позиций с hh.ru)
+otvety=[]
+for i in range(len(comp_posit)):
+    for y in range(len(comp_posit[i])):
+       otvety.append(i)
+#обработка подаваемых на вход в произвольной форме компетенций       
+my_comp=['имею навыки программирования на c++ и java,python со словарем,интересуюсь ML'] #подача на вход описания навыков кандидата в произвольном стиле
+my_comp_t=clear(str(my_comp)) #применение text_clear_function для обработки текста
+# Приведение обработанного к текста к бинарному виду для использования bag-of-words метода
+cod_my_comp_t=[] 
+for wd in vocab_comp:
+    if wd in my_comp_t: 
+        cod_my_comp_t.append(1)
+    else:   
+        cod_my_comp_t.append(0)
+cod_my_comp_t=[cod_my_comp_t]
+
+#разбиение данных на тестовую и обучающую, обучение, проверка качества на тестовой
+X_train, X_test, y_train, y_test = train_test_split(cod_comp, otvety, test_size=0.2, random_state=42) 
+nb_B.fit(X_train,y_train)
+pred=nb_B.predict(X_test)
+print(accuracy_score(y_test, pred)) 
+
+# предсказание подходящих вакансий для кандидата
+position_index=nb_B.predict(cod_my_comp_t)
+probabilit=nb_B.predict_proba(cod_my_comp_t) 
+ 
+#на всякий случай нормировка для создания вероятностного распределения на множестве возможных должностей из ЕКСД
+prob = probabilit[0]
+p=sum(prob)
+probabilities=[i/p for i in prob]   
+distribution = dict(zip(eksd,probabilities))
+
+#вывод наиболее подходящей должности и вроятностных оценок для остальных должностей
+position_index=int(position_index)
+print(eksd[position_index])   
+print(sorted(distribution.items(), key=itemgetter(1)))  
