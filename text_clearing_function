@@ -1,0 +1,14 @@
+from nltk.tokenize import word_tokenize
+import string
+from nltk.corpus import stopwords
+import pymorphy2
+morph = pymorphy2.MorphAnalyzer()
+
+def clear(txt):
+    tokens=word_tokenize(txt)
+    tokens=[morph.parse(w)[0].normal_form for w in tokens]
+    tbl=str.maketrans('', '',string.punctuation)
+    stripped=[w.translate(tbl) for w in tokens]
+    stop_words = stopwords.words('russian')+stopwords.words('english')                                                                   #creation of stop_words list including both russian an english words
+    words=[word for word in stripped if word.isalpha() and word not in stop_words] 
+    return words
