@@ -1,0 +1,30 @@
+os.chdir(r"D:\VASILIY\6 семестр\Семестер пэйпер\code")
+sk=flatten1(skills)
+mas=[]
+for k in range(len(sk)):
+   mas.append(sent_tokenize(str(sk[k])))
+
+sample1 = dict(zip_longest(vacancies, mas))  
+s_slovar=sortdict(sample1)
+query='python'
+from fuzzywuzzy import process
+choices=[]
+for jk in range(len(s_slovar)):
+    for nb in range(len(s_slovar[jk][1])):
+       choices.append(s_slovar[jk][1][nb])
+t=process.extract(query, choices,limit=1500)                 #нашли все предложения, где встречается эта компетенция
+sovp=[w for w in t if w[1] >=70] 
+#print(sovp)                               # Выбрали достаточно близкие
+sovp1=[list(i) for i in sovp]
+
+UoC=[] #массив из них
+for i in range(len(sovp1)):
+    UoC.append(sovp1[i][0])
+    
+UoC_token=[] 
+for el in UoC:
+        UoC_token.append(clear(str(el)))
+ 
+UoC_set_ms=list(set(sum(UoC_token, []))) #готовый UoC без дубликатов
+print(UoC_set_ms)
+print('---------------------------')
