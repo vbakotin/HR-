@@ -1,0 +1,50 @@
+comp_post=[[] for y in range(len(vacancies))]
+for elem in sample.keys():
+   for i in range(len(vacancies)):
+        if elem in vacancies[i]:
+            comp_post[i].append(sample[elem])
+        
+for j in range(len(comp_post)):
+    comp_post[j]=list(sum(comp_post[j],[]))
+
+#---------------------------UoC Algorithm
+   
+a=0
+vi=[]
+for i in range(len(comp_post)):
+    for w in UoC_set_ms:
+         a+=comp_post[i].count(w)
+    vi.append(a)
+    a=0 
+freq=[]    #частота для одной юнит для всех должностей          
+for k in range(len(vi)):
+    freq.append(round(vi[k]/len(vocab_comp),3))  
+    
+#print(freq)          
+
+#----------------------------------------------------- простой по вакансиям   
+ # можно сразу передавать параметр i так как мы определили группу
+
+md=[]
+b=[[] for g in range(len(comp_post))]
+mas=[[] for g in range(len(comp_post))]
+most_relevant=[[] for g in range(len(comp_post))] 
+
+for i in range(len(comp_post)):
+     for word in comp_post[i]:
+         b[i].append(comp_post[i].count(word))
+         md.append(median(sorted(b[i])))
+for i in range(len(comp_post)):       
+    for f in b[i]:
+       if f>=md[i]:                                       #выбрать функцию
+          mas[i].append(b[i].index(f))   
+    for k in mas[i]:
+        most_relevant[i].append(comp_post[i][k])                 
+for j in range(len(most_relevant)):
+    most_relevant[j]=list(set(most_relevant[j]))
+    
+print(most_relevant)   
+
+
+#На вход параметр i - индекс определенной должности и по нему сослаться most_relevant[i]
+    
